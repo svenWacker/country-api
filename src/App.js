@@ -2,38 +2,37 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Loading from "./components/Loading";
 import Country from "./components/Country";
-
 const App = () => {
   const [userInput, setUserInput] = useState("");
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(true);
-
   useEffect(() => {
     setTimeout(() => {
       setLoading(false);
     }, 1000);
   }, []);
+  const getCountry = (status, countryName) => {
+    let textToUrl = encodeURIComponent(countryName);
+    let endPoint = `https://restcountries.eu/rest/v2/${status}/${textToUrl}`;
 
-  function changeHandle(e) {
-    setUserInput(e.target.value);
-  }
-
-  function submitHandle(e) {
-    e.preventDefault();
-    let textToUrl = encodeURIComponent(userInput);
-    console.log(textToUrl);
-    let endPoint = `https://restcountries.eu/rest/v2/name/${textToUrl}`;
-
-    // fetch(endpoint)
+    // fetch(endPoint)
     // .then((res)=> res.json())
     // .then((data)=>setResults(data))
 
     axios(endPoint)
       .then(({ data }) => setResults(data))
-      .catch((err) => console.log("You had an ${err}"));
+      .catch((err) => console.log(`Your had an ${err}`));
+  };
+  function changeHandle(e) {
+    setUserInput(e.target.value);
   }
-
+  function submitHandle(e) {
+    e.preventDefault();
+    getCountry("name", userInput);
+    setUserInput("");
+  }
   if (loading) return <Loading />;
+
   return (
     <React.Fragment>
       <form onSubmit={submitHandle}>
@@ -45,7 +44,7 @@ const App = () => {
         />
         <button type="submit">Search</button>
       </form>
-      <Country results={results} />
+      <Country results={results} getCountry={getCountry} />
     </React.Fragment>
   );
 };
